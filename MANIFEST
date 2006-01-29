@@ -1,0 +1,15 @@
+Changes
+ChangeLog
+examples/cpanbot.pl
+INSTALL
+lib/Colloquy/Bot/Simple.pm
+LICENSE
+Makefile.PL
+MANIFEST
+META.yml
+NOTICE
+README
+t/00compile.t
+t/01pod.t
+t/02pod_coverage.t
+TODO
