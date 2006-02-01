@@ -1,6 +1,6 @@
 ############################################################
 #
-#   $Id: Simple.pm,v 1.4 2006/01/28 13:15:53 nicolaw Exp $
+#   $Id: Simple.pm,v 1.4 2006/02/01 23:12:28 nicolaw Exp $
 #   Colloquy::Bot::Simple - Simple robot interface for Colloquy
 #
 #   Copyright 2006 Nicola Worthington
@@ -83,7 +83,7 @@ sub listenLoop {
 						list => $list,
 						msgtype => $msgtype,
 						raw => $_,
-						args => \@args,
+						args => [ ($command,@args) ],
 					);
 		}
 		
@@ -125,7 +125,7 @@ sub new {
 			PasswordResponse => '',
 			LoginSuccess => 'MARK ---',
 			LoginFail => 'Incorrect login',
-			NoCommands => 1,
+			#NoCommands => 1,
 		});
 
 	return $talker;
@@ -312,7 +312,7 @@ L<Chatbot::TalkerBot>
 
 =head1 VERSION
 
-$Id: Simple.pm,v 1.4 2006/01/28 13:15:53 nicolaw Exp $
+$Id: Simple.pm,v 1.4 2006/02/01 23:12:28 nicolaw Exp $
 
 =head1 AUTHOR
 
