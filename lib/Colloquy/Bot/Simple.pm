@@ -1,6 +1,6 @@
 ############################################################
 #
-#   $Id: Simple.pm,v 1.4 2006/02/01 23:12:28 nicolaw Exp $
+#   $Id: Simple.pm,v 1.5 2006/02/01 23:12:28 nicolaw Exp $
 #   Colloquy::Bot::Simple - Simple robot interface for Colloquy
 #
 #   Copyright 2006 Nicola Worthington
@@ -31,7 +31,7 @@ use vars qw(@EXPORT @EXPORT_OK $VERSION);
 @EXPORT = qw(&connect_through_firewall &connect_directly &daemonize);
 @EXPORT_OK = qw(TB_TRACE TB_LOG);
 
-$VERSION = sprintf('%d.%02d', q$Revision: 1.4 $ =~ /(\d+)/g);
+$VERSION = sprintf('%d.%02d', q$Revision: 1.5 $ =~ /(\d+)/g);
 
 sub TB_LOG { Chatbot::TalkerBot::TB_TRACE(@_); }
 sub TB_TRACE { Chatbot::TalkerBot::TB_TRACE(@_); }
@@ -78,28 +78,40 @@ sub listenLoop {
 				$text = $2;
 				@args = split(/\s+/,$text);
 				@cmdargs = @args;
-				$command = shift @args;
+				$command = shift @cmdargs;
 
 			# LISTTALK and LISTEMOTE
 			} elsif ($msgtype =~ /^LISTTALK|LISTEMOTE$/ && /^(\S+)\s+%(.*)\s+{(.+?)}\s*$/) {
 				$person = $1;
 				$text = $2;
 				@args = split(/\s+/,$text);
-				@cmdargs = @args;
-				$command = shift @args;
+				unless ($msgtype eq 'LISTEMOTE') {
+					@cmdargs = @args;
+					$command = shift @cmdargs;
+				}
 				$list = '%'.$3;
 
 			# OBSERVED
 			} elsif ($msgtype eq 'OBSERVED') {
-				# TALK and EMOTE
-				if (/^(\S+)\s+(\S+)\s+(?:\@\s+)?(\S+)\s+(.+)\s+{(\@.+?)}\s*$/) {
+				# TALK
+				if (/^(\S+)\s+(\S+)\s+(\S+)\s+\@(.+)\s+{(\@.+?)}\s*$/) {
 					$list = '@'.$1;
 					$msgtype = "OBSERVED $2";
 					$person = $3;
 					$text = $4;
 					@args = split(/\s+/,$text);
 					@cmdargs = @args;
-					$command = shift @args;
+					$command = shift @cmdargs;
+
+				# EMOTE
+				} elsif (/^(\S+)\s+(\S+)\s+(?:\@\s+)(\S+)\s+(.+)\s+{(\@.+?)}\s*$/) {
+					$list = '@'.$1;
+					$msgtype = "OBSERVED $2";
+					$person = $3;
+					$text = $4;
+					@args = split(/\s+/,$text);
+					#@cmdargs = @args;
+					#$command = shift @cmdargs;
 
 				# GROUPCHANGE
 				} elsif (/^(\S+)\s+GROUPCHANGE\s+(\S+)\s+(.*)\s*$/) {
@@ -108,8 +120,8 @@ sub listenLoop {
 					$person = $2;
 					$text = $3;
 					@args = split(/\s+/,$text);
-					@cmdargs = @args;
-					$command = shift @args;
+					#@cmdargs = @args;
+					#$command = shift @cmdargs;
 				}
 
 			# SHOUT
@@ -117,17 +129,23 @@ sub listenLoop {
 				$person = $1;
 				$text = $2;
 				@args = split(/\s+/,$text);
-				@cmdargs = @args;
-				$command = shift @args;
+				#@cmdargs = @args;
+				#$command = shift @cmdargs;
 
 			# CONNECT
-			} elsif ($msgtype eq 'CONNECT' && /^((\S+).+(\S+)\.)\s*$/) {
+			} elsif ($msgtype eq 'CONNECT' && /^((\S+).+\s+(\S+)\.)\s*$/) {
 				$person = $2;
 				$text = $1;
 				@args = split(/\s+/,$text);
-				@cmdargs = @args;
-				$command = shift @args;
+				#@cmdargs = @args;
+				#$command = shift @cmdargs;
 				$list = '@'.$3;
+
+			# IDLE
+			} elsif ($msgtype eq 'IDLE' && /^((\S+)(.*))\s*$/) {
+				$person = $2;
+				$text = $1;
+				@args = split(/\s+/,$text);
 			}
 
 			TB_LOG("Attending: <$person> says <$text>");
@@ -143,13 +161,9 @@ sub listenLoop {
 						msgtype => $msgtype,
 						raw => $raw,
 						raw2 => $_,
-						args => @args,
+						args => \@args,
 						cmdargs => \@cmdargs,
 					);
-
-			use Data::Dumper;
-			warn Dumper(\%argsHash);
-			next;
 
 			$STOPLOOP = $callback->($self, %argsHash);
 		}
@@ -379,7 +393,7 @@ L<Chatbot::TalkerBot>
 
 =head1 VERSION
 
-$Id: Simple.pm,v 1.4 2006/02/01 23:12:28 nicolaw Exp $
+$Id: Simple.pm,v 1.5 2006/02/01 23:12:28 nicolaw Exp $
 
 =head1 AUTHOR
 
