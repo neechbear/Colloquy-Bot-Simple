@@ -62,14 +62,15 @@ sub listenLoop {
 		# only pay any attention to that regular expression
 		if ($self->{'AnyCommands'} == 1 &&
 					m/^((?:TELL|LIST|GROUP|TALK|OBSERVED|SHOUT
-						|P?R?EMOTE|IDLE|(?:DIS)?CONNECT)\S*)\s+(.+)$/x) {
+						|P?R?EMOTE|IDLE|(?:DIS)?CONNECT|[A-Z]+)\S*)\s+(.+)$/x) {
 
 			my $raw = $_;
 			my $msgtype = $1;
 			local $_ = $2;
+			my $text = $_;
 
-			my ($person,$command,$list,$text,$respond);
-			my @args;
+			my ($person,$command,$list,$respond);
+			my @args = split(/\s+/,$_);
 			my @cmdargs;
 
 			# TALK and TELL
@@ -156,7 +157,7 @@ sub listenLoop {
 				@args = split(/\s+/,$text);
 			}
 
-			TB_LOG("Attending: <$person> says <$text>");
+			TB_LOG("Attending: <$msgtype> = <$text>");
 			$self->{'lines_in'} += 1;
 
 			my %argsHash = (
