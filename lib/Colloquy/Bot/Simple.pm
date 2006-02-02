@@ -1,6 +1,6 @@
 ############################################################
 #
-#   $Id: Simple.pm,v 1.5 2006/02/01 23:12:28 nicolaw Exp $
+#   $Id: Simple.pm,v 1.6 2006/02/01 23:12:28 nicolaw Exp $
 #   Colloquy::Bot::Simple - Simple robot interface for Colloquy
 #
 #   Copyright 2006 Nicola Worthington
@@ -31,7 +31,7 @@ use vars qw(@EXPORT @EXPORT_OK $VERSION);
 @EXPORT = qw(&connect_through_firewall &connect_directly &daemonize);
 @EXPORT_OK = qw(TB_TRACE TB_LOG);
 
-$VERSION = sprintf('%d.%02d', q$Revision: 1.5 $ =~ /(\d+)/g);
+$VERSION = sprintf('%d.%02d', q$Revision: 1.6 $ =~ /(\d+)/g);
 
 sub TB_LOG { Chatbot::TalkerBot::TB_TRACE(@_); }
 sub TB_TRACE { Chatbot::TalkerBot::TB_TRACE(@_); }
@@ -68,7 +68,7 @@ sub listenLoop {
 			my $msgtype = $1;
 			local $_ = $2;
 
-			my ($person,$command,$list,$text);
+			my ($person,$command,$list,$text,$respond);
 			my @args;
 			my @cmdargs;
 
@@ -79,6 +79,14 @@ sub listenLoop {
 				@args = split(/\s+/,$text);
 				@cmdargs = @args;
 				$command = shift @cmdargs;
+
+			# LISTINVITE
+			} elsif ($msgtype eq 'LISTINVITE' && /((\S+)\s+invites\s+you\s+to\s+(\S+)\s+To\s+respond,\s+type\s+(.+))\s*$/) {
+				$person = $2;
+				$list = $3;
+				$respond = $4;
+				$text = $1;
+				@args = split(/\s+/,$text);
 
 			# LISTTALK and LISTEMOTE
 			} elsif ($msgtype =~ /^LISTTALK|LISTEMOTE$/ && /^(\S+)\s+%(.*)\s+{(.+?)}\s*$/) {
@@ -160,6 +168,7 @@ sub listenLoop {
 						spoken => $text,
 						msgtype => $msgtype,
 						raw => $raw,
+						respond => $respond,
 						raw2 => $_,
 						args => \@args,
 						cmdargs => \@cmdargs,
@@ -393,7 +402,7 @@ L<Chatbot::TalkerBot>
 
 =head1 VERSION
 
-$Id: Simple.pm,v 1.5 2006/02/01 23:12:28 nicolaw Exp $
+$Id: Simple.pm,v 1.6 2006/02/01 23:12:28 nicolaw Exp $
 
 =head1 AUTHOR
 
