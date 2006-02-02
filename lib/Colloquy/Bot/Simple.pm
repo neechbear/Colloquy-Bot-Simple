@@ -38,8 +38,6 @@ sub TB_TRACE { Chatbot::TalkerBot::TB_TRACE(@_); }
 
 sub listenLoop {
 	my $self = shift;
-	my $matchre = '^(?:TELL|LISTTALK|TALK|OBSERVED \S+ (?:EMOTE @|TALK)) (\S{1,10})\s*[@%:>]?(.*)$';
-	#my $matchre = shift || die("You must supply a match string/regexp");
 	my $callback = shift;
 	my $interrupt = shift;
 	
@@ -62,29 +60,98 @@ sub listenLoop {
 		s/[\n\r]//g;
 		
 		# only pay any attention to that regular expression
-		if (($self->{'AnyCommands'} == 1) && (m/$matchre/)) {
-			my $person = $1;
-			my $text = $2;
+		if ($self->{'AnyCommands'} == 1 &&
+					m/^((?:TELL|LIST|GROUP|TALK|OBSERVED|SHOUT
+						|P?R?EMOTE|IDLE|(?:DIS)?CONNECT)\S*)\s+(.+)$/x) {
 
-			my $list = _is_list($text);
-			if ($list && $list =~ /^\%(.+)$/) {
-				$text =~ s/\{$1\}\s*$//;
+			my $raw = $_;
+			my $msgtype = $1;
+			local $_ = $2;
+
+			my ($person,$command,$list,$text);
+			my @args;
+			my @cmdargs;
+
+			# TALK and TELL
+			if ($msgtype =~ /^TALK|TELL$/ && /^(\S+)\s+[:>](.*)\s*$/) {
+				$person = $1;
+				$text = $2;
+				@args = split(/\s+/,$text);
+				@cmdargs = @args;
+				$command = shift @args;
+
+			# LISTTALK and LISTEMOTE
+			} elsif ($msgtype =~ /^LISTTALK|LISTEMOTE$/ && /^(\S+)\s+%(.*)\s+{(.+?)}\s*$/) {
+				$person = $1;
+				$text = $2;
+				@args = split(/\s+/,$text);
+				@cmdargs = @args;
+				$command = shift @args;
+				$list = '%'.$3;
+
+			# OBSERVED
+			} elsif ($msgtype eq 'OBSERVED') {
+				# TALK and EMOTE
+				if (/^(\S+)\s+(\S+)\s+(?:\@\s+)?(\S+)\s+(.+)\s+{(\@.+?)}\s*$/) {
+					$list = '@'.$1;
+					$msgtype = "OBSERVED $2";
+					$person = $3;
+					$text = $4;
+					@args = split(/\s+/,$text);
+					@cmdargs = @args;
+					$command = shift @args;
+
+				# GROUPCHANGE
+				} elsif (/^(\S+)\s+GROUPCHANGE\s+(\S+)\s+(.*)\s*$/) {
+					$list = '@'.$1;
+					$msgtype = 'OBSERVED GROUPCHANGE';
+					$person = $2;
+					$text = $3;
+					@args = split(/\s+/,$text);
+					@cmdargs = @args;
+					$command = shift @args;
+				}
+
+			# SHOUT
+			} elsif ($msgtype eq 'SHOUT' && /^(\S+)\s+\!(.*)\s*$/) {
+				$person = $1;
+				$text = $2;
+				@args = split(/\s+/,$text);
+				@cmdargs = @args;
+				$command = shift @args;
+
+			# CONNECT
+			} elsif ($msgtype eq 'CONNECT' && /^((\S+).+(\S+)\.)\s*$/) {
+				$person = $2;
+				$text = $1;
+				@args = split(/\s+/,$text);
+				@cmdargs = @args;
+				$command = shift @args;
+				$list = '@'.$3;
 			}
-
-			my ($msgtype) = $_ =~ /^([A-Z]+)\s+/;
 
 			TB_LOG("Attending: <$person> says <$text>");
 			$self->{'lines_in'} += 1;
-			my ($command, @args) = split(/ /, $text);
 
-			$STOPLOOP = $callback->($self, 
+			my %argsHash = (
+						'alarm' => 0,
 						person => $person,
 						command => $command,
 						list => $list,
+						text => $text,
+						spoken => $text,
 						msgtype => $msgtype,
-						raw => $_,
-						args => [ ($command,@args) ],
+						raw => $raw,
+						raw2 => $_,
+						args => @args,
+						cmdargs => \@cmdargs,
 					);
+
+			use Data::Dumper;
+			warn Dumper(\%argsHash);
+			next;
+
+			$STOPLOOP = $callback->($self, %argsHash);
 		}
 		
 		# command processing done, turn interrupts back on
@@ -133,7 +200,7 @@ sub new {
 
 sub _is_list {
 	local $_ = shift || '';
-	if (/^LISTTALK\s+.+\{(\w+?)\}\s*$/) {
+	if (/^LIST.+\{(\w+?)\}\s*$/) {
 		return '%'.$1;
 	} elsif (/^OBSERVED\s+(\S+)\s+/) {
 		return '@'.$1;
