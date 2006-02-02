@@ -1,3 +1,9 @@
+Version 1.05 - 2nd February 2006
+    + Fixed bugs with parsing of text lines. Added finer
+      grained output in the $event hash reference returned
+      to the event handler code.
+
+
 Version 1.04 - 1st February 2006
     + Fixed to allow commands (NoCommands was left in the code
       by accident).
