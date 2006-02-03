@@ -89,15 +89,19 @@ sub listenLoop {
 				$text = $1;
 				@args = split(/\s+/,$text);
 
-			# LISTTALK and LISTEMOTE
-			} elsif ($msgtype =~ /^LISTTALK|LISTEMOTE$/ && /^(\S+)\s+%(.*)\s+{(.+?)}\s*$/) {
+			# LISTTALK
+			} elsif ($msgtype eq 'LISTTALK' && /^(\S+)\s*%(.*)\s+{(.+?)}\s*$/) {
 				$person = $1;
 				$text = $2;
 				@args = split(/\s+/,$text);
-				unless ($msgtype eq 'LISTEMOTE') {
-					@cmdargs = @args;
-					$command = shift @cmdargs;
-				}
+				@cmdargs = @args;
+				$command = shift @cmdargs;
+
+			# LISTEMOTE
+			} elsif ($msgtype eq 'LISTEMOTE' && /^%\s*(\S+)\s+(.*)\s+{(.+?)}\s*$/) {
+				$person = $1;
+				$text = $2;
+				@args = split(/\s+/,$text);
 				$list = '%'.$3;
 
 			# OBSERVED
