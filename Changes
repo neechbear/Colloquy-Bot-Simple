@@ -1,4 +1,8 @@
-Version 1.05 - 2nd February 2006
+Version 1.07 - 3rd February 2006
+    + Added passthrough of various options to the superclass.
+
+
+Version 1.06 - 2nd February 2006
     + Fixed bugs with parsing of text lines. Added finer
       grained output in the $event hash reference returned
       to the event handler code.

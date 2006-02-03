@@ -1,6 +1,6 @@
 ############################################################
 #
-#   $Id: Simple.pm,v 1.6 2006/02/01 23:12:28 nicolaw Exp $
+#   $Id: Simple.pm,v 1.7 2006/02/01 23:12:28 nicolaw Exp $
 #   Colloquy::Bot::Simple - Simple robot interface for Colloquy
 #
 #   Copyright 2006 Nicola Worthington
@@ -31,7 +31,7 @@ use vars qw(@EXPORT @EXPORT_OK $VERSION);
 @EXPORT = qw(&connect_through_firewall &connect_directly &daemonize);
 @EXPORT_OK = qw(TB_TRACE TB_LOG);
 
-$VERSION = sprintf('%d.%02d', q$Revision: 1.6 $ =~ /(\d+)/g);
+$VERSION = sprintf('%d.%02d', q$Revision: 1.7 $ =~ /(\d+)/g);
 
 sub TB_LOG { Chatbot::TalkerBot::TB_TRACE(@_); }
 sub TB_TRACE { Chatbot::TalkerBot::TB_TRACE(@_); }
@@ -210,12 +210,12 @@ sub new {
 	my $talker = $class->SUPER::new($socket, {
 			Username => $self->{username},
 			Password => $self->{password},
-			UsernameResponse => '<USER> <PASS>',
-			UsernamePrompt => 'HELLO colloquy',
-			PasswordPrompt => '',
-			PasswordResponse => '',
-			LoginSuccess => 'MARK ---',
-			LoginFail => 'Incorrect login',
+			UsernameResponse => $self->{usernameresponse} || '<USER> <PASS>',
+			UsernamePrompt => $self->{usernameprompt} || 'HELLO colloquy',
+			PasswordPrompt => $self->{passwordprompt} || '',
+			PasswordResponse => $self->{passwordresponse} || '',
+			LoginSuccess => $self->{loginsuccess} || 'MARK ---',
+			LoginFail => $self->{loginfail} || 'Incorrect login',
 			#NoCommands => 1,
 		});
 
@@ -403,7 +403,7 @@ L<Chatbot::TalkerBot>
 
 =head1 VERSION
 
-$Id: Simple.pm,v 1.6 2006/02/01 23:12:28 nicolaw Exp $
+$Id: Simple.pm,v 1.7 2006/02/01 23:12:28 nicolaw Exp $
 
 =head1 AUTHOR
 
