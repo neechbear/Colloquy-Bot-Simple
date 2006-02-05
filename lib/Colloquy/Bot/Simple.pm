@@ -96,6 +96,7 @@ sub listenLoop {
 				@args = split(/\s+/,$text);
 				@cmdargs = @args;
 				$command = shift @cmdargs;
+				$list = '%'.$3;
 
 			# LISTEMOTE
 			} elsif ($msgtype eq 'LISTEMOTE' && /^%\s*(\S+)\s+(.*)\s+{(.+?)}\s*$/) {
