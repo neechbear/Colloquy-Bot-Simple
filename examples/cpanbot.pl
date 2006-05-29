@@ -13,7 +13,7 @@ use Colloquy::Bot::Simple qw(daemonize);
 use vars qw($VERSION $SELF $ROOT);
 
 ($SELF = $0) =~ s|^.*/||;
-$VERSION = sprintf('%d.%02d', q$Revision: 1.1 $ =~ /(\d+)/g);
+$VERSION = sprintf('%d.%02d', q$Revision$ =~ /(\d+)/g);
 $SIG{'ALRM'} = sub { die "Alarm Caught; login took too long"; };
 $SIG{'INT'}  = sub { die "Interrupt caught"; };
 

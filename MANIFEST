@@ -1,11 +1,11 @@
+Build.PL
 ChangeLog.old.cvs
 Changes
 examples/cpanbot.pl
 INSTALL
 lib/Colloquy/Bot/Simple.pm
 LICENSE
-Makefile.PL
-MANIFEST
+MANIFEST			This list of files
 META.yml
 NOTICE
 README

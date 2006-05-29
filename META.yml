@@ -1,12 +1,21 @@
-# http://module-build.sourceforge.net/META-spec.html
-#XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
-name:         Colloquy-Bot-Simple
-version:      1.07
-version_from: lib/Colloquy/Bot/Simple.pm
-installdirs:  site
+---
+name: Colloquy-Bot-Simple
+version: 1.07
+author:
+  - Nicola Worthington <nicolaw@cpan.org>
+abstract: Simple robot interface for Colloquy
+license: open_source
 requires:
-    Carp:                          0
-    Chatbot::TalkerBot:            1.8
-
-distribution_type: module
-generated_by: ExtUtils::MakeMaker version 6.17
+  Carp: 0
+  Chatbot::TalkerBot: 1.8
+  Parse::Colloquy::Bot: 0.02
+recommends:
+  Test: 0
+  Test::More: 0
+  Test::Pod: 0
+  Test::Pod::Coverage: 0
+provides:
+  Colloquy::Bot::Simple:
+    file: lib/Colloquy/Bot/Simple.pm
+    version: 1.07
+generated_by: Module::Build version 0.2611
