@@ -1,0 +1,11 @@
+<SOFTPKG NAME="Colloquy-Bot-Simple" VERSION="1,08,0,0">
+    <TITLE>Colloquy-Bot-Simple</TITLE>
+    <ABSTRACT>Simple robot interface for Colloquy</ABSTRACT>
+    <AUTHOR>Nicola Worthington &lt;nicolaw@cpan.org&gt;</AUTHOR>
+    <IMPLEMENTATION>
+        <DEPENDENCY NAME="Chatbot-TalkerBot" VERSION="1,8,0,0" />
+        <DEPENDENCY NAME="Parse-Colloquy-Bot" VERSION="0,02,0,0" />
+        <DEPENDENCY NAME="Carp" VERSION="0,0,0,0" />
+        <CODEBASE HREF="PPM-Colloquy-Bot-Simple-1.08.tar.gz" />
+    </IMPLEMENTATION>
+</SOFTPKG>
