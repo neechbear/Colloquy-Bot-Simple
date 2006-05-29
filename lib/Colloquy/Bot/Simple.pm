@@ -25,13 +25,18 @@ package Colloquy::Bot::Simple;
 use base qw(Chatbot::TalkerBot);
 
 use strict;
+no warnings qw(redefine);
+
 use Exporter;
 use Carp qw(croak cluck carp confess);
+use Parse::Colloquy::Bot qw(:all);
+
 use vars qw(@EXPORT @EXPORT_OK $VERSION);
+
 @EXPORT = qw(&connect_through_firewall &connect_directly &daemonize);
 @EXPORT_OK = qw(TB_TRACE TB_LOG);
 
-$VERSION = sprintf('%d.%02d', q$Revision$ =~ /(\d+)/g);
+$VERSION = '1.08' || sprintf('%d', q$Revision$ =~ /(\d+)/g);
 
 sub TB_LOG { Chatbot::TalkerBot::TB_TRACE(@_); }
 sub TB_TRACE { Chatbot::TalkerBot::TB_TRACE(@_); }
@@ -60,127 +65,14 @@ sub listenLoop {
 		s/[\n\r]//g;
 		
 		# only pay any attention to that regular expression
-		if ($self->{'AnyCommands'} == 1 &&
-					m/^((?:TELL|LIST|GROUP|TALK|OBSERVED|SHOUT
-						|P?R?EMOTE|IDLE|(?:DIS)?CONNECT|[A-Z]+)\S*)\s+(.+)$/x) {
+		if ($self->{'AnyCommands'} == 1) {
+			my $args = Parse::Colloquy::Bot::parse_line($_);
+			$args->{alarm} = 0;
 
-			my $raw = $_;
-			my $msgtype = $1;
-			local $_ = $2;
-			my $text = $_;
-
-			my ($person,$command,$list,$respond);
-			my @args = split(/\s+/,$_);
-			my @cmdargs;
-
-			# TALK and TELL
-			if ($msgtype =~ /^TALK|TELL$/ && /^(\S+)\s+[:>](.*)\s*$/) {
-				$person = $1;
-				$text = $2;
-				@args = split(/\s+/,$text);
-				@cmdargs = @args;
-				$command = shift @cmdargs;
-
-			# LISTINVITE
-			} elsif ($msgtype eq 'LISTINVITE' && /((\S+)\s+invites\s+you\s+to\s+(\S+)\s+To\s+respond,\s+type\s+(.+))\s*$/) {
-				$person = $2;
-				$list = $3;
-				$respond = $4;
-				$text = $1;
-				@args = split(/\s+/,$text);
-
-			# LISTTALK
-			} elsif ($msgtype eq 'LISTTALK' && /^(\S+)\s*%(.*)\s+{(.+?)}\s*$/) {
-				$person = $1;
-				$text = $2;
-				@args = split(/\s+/,$text);
-				@cmdargs = @args;
-				$command = shift @cmdargs;
-				$list = '%'.$3;
-
-			# LISTEMOTE
-			} elsif ($msgtype eq 'LISTEMOTE' && /^%\s*(\S+)\s+(.*)\s+{(.+?)}\s*$/) {
-				$person = $1;
-				$text = $2;
-				@args = split(/\s+/,$text);
-				$list = '%'.$3;
-
-			# OBSERVED
-			} elsif ($msgtype eq 'OBSERVED') {
-				# TALK
-				if (/^(\S+)\s+(\S+)\s+(\S+)\s+\@(.+)\s+{(\@.+?)}\s*$/) {
-					$list = '@'.$1;
-					$msgtype = "OBSERVED $2";
-					$person = $3;
-					$text = $4;
-					@args = split(/\s+/,$text);
-					@cmdargs = @args;
-					$command = shift @cmdargs;
-
-				# EMOTE
-				} elsif (/^(\S+)\s+(\S+)\s+(?:\@\s+)(\S+)\s+(.+)\s+{(\@.+?)}\s*$/) {
-					$list = '@'.$1;
-					$msgtype = "OBSERVED $2";
-					$person = $3;
-					$text = $4;
-					@args = split(/\s+/,$text);
-					#@cmdargs = @args;
-					#$command = shift @cmdargs;
-
-				# GROUPCHANGE
-				} elsif (/^(\S+)\s+GROUPCHANGE\s+(\S+)\s+(.*)\s*$/) {
-					$list = '@'.$1;
-					$msgtype = 'OBSERVED GROUPCHANGE';
-					$person = $2;
-					$text = $3;
-					@args = split(/\s+/,$text);
-					#@cmdargs = @args;
-					#$command = shift @cmdargs;
-				}
-
-			# SHOUT
-			} elsif ($msgtype eq 'SHOUT' && /^(\S+)\s+\!(.*)\s*$/) {
-				$person = $1;
-				$text = $2;
-				@args = split(/\s+/,$text);
-				#@cmdargs = @args;
-				#$command = shift @cmdargs;
-
-			# CONNECT
-			} elsif ($msgtype eq 'CONNECT' && /^((\S+).+\s+(\S+)\.)\s*$/) {
-				$person = $2;
-				$text = $1;
-				@args = split(/\s+/,$text);
-				#@cmdargs = @args;
-				#$command = shift @cmdargs;
-				$list = '@'.$3;
-
-			# IDLE
-			} elsif ($msgtype eq 'IDLE' && /^((\S+)(.*))\s*$/) {
-				$person = $2;
-				$text = $1;
-				@args = split(/\s+/,$text);
-			}
-
-			TB_LOG("Attending: <$msgtype> = <$text>");
+			TB_LOG("Attending: <$args->{msgtype}> = <$args->{text}>");
 			$self->{'lines_in'} += 1;
 
-			my %argsHash = (
-						'alarm' => 0,
-						person => $person,
-						command => $command,
-						list => $list,
-						text => $text,
-						spoken => $text,
-						msgtype => $msgtype,
-						raw => $raw,
-						respond => $respond,
-						raw2 => $_,
-						args => \@args,
-						cmdargs => \@cmdargs,
-					);
-
-			$STOPLOOP = $callback->($self, %argsHash);
+			$STOPLOOP = $callback->($self, %{$args});
 		}
 		
 		# command processing done, turn interrupts back on
@@ -404,7 +296,7 @@ Write some decent POD.
 
 =head1 SEE ALSO
 
-L<Chatbot::TalkerBot>
+L<Chatbot::TalkerBot>, L<Parse::Colloquy::Bot>, L<Bundle::Colloquy::BotBot2>
 
 =head1 VERSION
 
