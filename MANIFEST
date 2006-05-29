@@ -8,7 +8,6 @@ LICENSE
 MANIFEST			This list of files
 META.yml
 NOTICE
-README
 t/00compile.t
 t/01pod.t
 t/02pod_coverage.t
