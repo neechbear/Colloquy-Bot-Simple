@@ -1,6 +1,6 @@
 ---
 name: Colloquy-Bot-Simple
-version: 516.00
+version: 1.08
 author:
   - Nicola Worthington <nicolaw@cpan.org>
 abstract: Simple robot interface for Colloquy
@@ -17,5 +17,5 @@ recommends:
 provides:
   Colloquy::Bot::Simple:
     file: lib/Colloquy/Bot/Simple.pm
-    version: 516.00
+    version: 1.08
 generated_by: Module::Build version 0.2611

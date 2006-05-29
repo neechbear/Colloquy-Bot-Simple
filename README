@@ -60,10 +60,10 @@ TODO
     Write some decent POD.
 
 SEE ALSO
-    Chatbot::TalkerBot
+    Chatbot::TalkerBot, Parse::Colloquy::Bot, Bundle::Colloquy::BotBot2
 
 VERSION
-    $Id: Simple.pm 516 2006-05-29 11:22:09Z nicolaw $
+    $Id: Simple.pm 518 2006-05-29 11:32:23Z nicolaw $
 
 AUTHOR
     Nicola Worthington <nicolaw@cpan.org>
